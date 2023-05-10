@@ -27,3 +27,4 @@ dev-demo:
 
 build-demo:
 	cd cmd/demo && node_modules/@ionic/cli/bin/ionic build
+	echo '' > cmd/demo/www/.gitkeep

@@ -4,11 +4,9 @@ import (
 	"embed"
 	"flag"
 	"fmt"
-	"net/http"
 	"os"
 
 	"gitee.com/xuender/gca"
-	"github.com/samber/lo"
 	"github.com/xuender/kit/logs"
 )
 
@@ -19,23 +17,8 @@ func main() {
 	flag.Usage = usage
 	flag.Parse()
 
-	http.HandleFunc("/exit", func(w http.ResponseWriter, r *http.Request) { os.Exit(0) })
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, `<html>
-	<head><title>GCA Demo</title></head>
-	<body>
-		<h1>Hello, GCA!</h1>
-		<script type="text/javascript">
-window.addEventListener("beforeunload",function(e){
-var x=new XMLHttpRequest();
-x.open("POST","/exit",true);
-x.send();
-e.returnValue="Ary you exit?";
-});
-	</script>
-	</body>
-</html>`)
-	})
+	app := gca.NewApp()
+	app.Static("/", "www", WWW)
 
 	addr := "127.0.0.1:9527"
 
@@ -48,8 +31,8 @@ e.returnValue="Ary you exit?";
 			os.Exit(1)
 		}
 	}()
-	// nolint: gosec
-	lo.Must0(http.ListenAndServe(addr, nil))
+
+	app.Run(addr)
 }
 
 func usage() {
