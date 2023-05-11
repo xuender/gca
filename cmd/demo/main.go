@@ -14,23 +14,28 @@ import (
 var WWW embed.FS
 
 func main() {
+	isServer := false
 	flag.Usage = usage
+	flag.BoolVar(&isServer, "server", false, "服务模式")
 	flag.Parse()
 
 	app := gca.NewApp()
+	app.Server = isServer
 	app.Static("/", "www", WWW)
 
 	addr := "127.0.0.1:9527"
 
-	go func() {
-		if err := gca.Open(
-			"http://"+addr,
-			gca.NewOption().Maximized(true),
-		); err != nil {
-			logs.E.Println(err)
-			os.Exit(1)
-		}
-	}()
+	if !isServer {
+		go func() {
+			if err := gca.Open(
+				"http://"+addr,
+				gca.NewOption().Maximized(true),
+			); err != nil {
+				logs.E.Println(err)
+				os.Exit(1)
+			}
+		}()
+	}
 
 	app.Run(addr)
 }
