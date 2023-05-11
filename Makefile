@@ -19,17 +19,18 @@ watch-test:
 clean:
 	rm -rf dist
 
-build:
-	go build -o dist/gca main.go
-
 dev-demo:
 	cd cmd/demo && node_modules/@ionic/cli/bin/ionic serve -- --proxy-config proxy.conf.json
+
 dev-demo-go:
 	go run cmd/demo/main.go -server
 
 build-demo:
-	cd cmd/demo && node_modules/@ionic/cli/bin/ionic build
+	cd cmd/demo && node_modules/@ionic/cli/bin/ionic build --prod
 	echo '' > cmd/demo/www/.gitkeep
+
+build-demo-go: build-demo
+	go build -o dist/gca-demo cmd/demo/main.go
 
 proto:
 	protoc --go_out=. pb/*.proto

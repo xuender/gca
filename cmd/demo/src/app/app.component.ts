@@ -1,18 +1,16 @@
 import { Component } from '@angular/core';
+import { NetService } from './api/net.service';
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  public appPages = [
-    { title: 'Inbox', url: '/folder/inbox', icon: 'mail' },
-    { title: 'Outbox', url: '/folder/outbox', icon: 'paper-plane' },
-    { title: 'Favorites', url: '/folder/favorites', icon: 'heart' },
-    { title: 'Archived', url: '/folder/archived', icon: 'archive' },
-    { title: 'Trash', url: '/folder/trash', icon: 'trash' },
-    { title: 'Spam', url: '/folder/spam', icon: 'warning' },
+  appPages = [
+    { title: '系统信息', url: '/info', icon: 'information-circle' },
+    { title: '支持图标', url: '/icons', icon: 'apps' },
+    { title: '服务检查', url: '/ping', icon: 'planet' },
   ];
-  public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
-  constructor() {}
+  labels = ['Golang', '依赖 Chrome 或 Edge', '多平台支持'];
+  constructor(public net: NetService) {}
 }

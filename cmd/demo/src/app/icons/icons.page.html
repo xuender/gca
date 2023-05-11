@@ -1,0 +1,42 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>图标</ion-title>
+    <ion-buttons slot="end">
+      <ion-searchbar [(ngModel)]="query.text" [debounce]="500" (ngModelChange)="find()"></ion-searchbar>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">图标</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-grid>
+    <ion-col size="1" *ngFor="let icon of icons?.data">
+      <ion-button size="large" color="light" [title]="icon" (click)="copy(icon)">
+        <ion-icon [name]="icon"></ion-icon>
+      </ion-button>
+    </ion-col>
+  </ion-grid>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-badge slot="start">{{ query.limit }} / {{ icons.count }}</ion-badge>
+      <ion-button size="large" (click)="prev()" [disabled]="!query.limit || query.limit===0">
+        <ion-icon name="caret-back"></ion-icon>
+      </ion-button>
+      <ion-button size="large" (click)="next()" [disabled]="!icons.data || icons.data.length<100">
+        <ion-icon name="caret-forward"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

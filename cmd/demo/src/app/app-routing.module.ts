@@ -4,13 +4,23 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'folder/Inbox',
+    redirectTo: 'info',
     pathMatch: 'full',
   },
   {
-    path: 'folder/:id',
+    path: 'ping',
     loadChildren: () =>
-      import('./folder/folder.module').then((m) => m.FolderPageModule),
+      import('./ping/ping.module').then((m) => m.PingPageModule),
+  },
+  {
+    path: 'icons',
+    loadChildren: () =>
+      import('./icons/icons.module').then((m) => m.IconsPageModule),
+  },
+  {
+    path: 'info',
+    loadChildren: () =>
+      import('./info/info.module').then((m) => m.InfoPageModule),
   },
 ];
 
