@@ -21,9 +21,7 @@ export class IconsPage implements OnInit {
   ) {}
 
   find() {
-    console.log('find');
-
-    return this.http
+    this.http
       .post<Result>('/api/icons', this.query)
       .subscribe((r) => (this.icons = r));
   }
@@ -59,12 +57,14 @@ export class IconsPage implements OnInit {
       let text = `<ion-icon name="${str + key}"></ion-icon>`;
       buttons.push({
         text,
+        icon: str + key,
         data: { text },
       });
 
       text = str + key;
       buttons.push({
         text,
+        icon: text,
         data: { text },
       });
     }

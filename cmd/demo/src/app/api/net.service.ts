@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Message } from '../ping/message';
 import { ToastController } from '@ionic/angular';
 
 @Injectable({
@@ -8,16 +7,6 @@ import { ToastController } from '@ionic/angular';
 })
 export class NetService {
   constructor(private http: HttpClient, private toastCtrl: ToastController) {}
-  ping() {
-    // return this.http.get<Message>('/api/ping').pipe(
-    //   tap((msg) => {
-    //     msg.date = new Date(msg.time);
-
-    //     return msg;
-    //   })
-    // );
-    return this.http.get<Message>('/api/ping');
-  }
 
   copy(text: string) {
     this.http.post<boolean>('/api/clipboard', { text }).subscribe(async (r) => {
