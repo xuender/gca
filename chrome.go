@@ -15,7 +15,28 @@ func Open(url string, option *Option) error {
 	return exec.Command(chrome, option.Args(url)...).Run()
 }
 
-func DarwinPaths() []string {
+func LocateChrome() string {
+	var paths []string
+
+	switch runtime.GOOS {
+	case "darwin":
+		paths = darwinPaths()
+	case "windows":
+		paths = WindowsPaths()
+	default:
+		paths = unixPaths()
+	}
+
+	for _, path := range paths {
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			return path
+		}
+	}
+
+	return ""
+}
+
+func darwinPaths() []string {
 	return []string{
 		"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
 		"/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
@@ -53,7 +74,7 @@ func WindowsPaths() []string {
 	return paths
 }
 
-func UnixPaths() []string {
+func unixPaths() []string {
 	return []string{
 		"/usr/bin/microsoft-edge",
 		"/usr/bin/google-chrome-stable",
@@ -64,27 +85,4 @@ func UnixPaths() []string {
 		"/snap/bin/chromium",
 		"/snap/bin/brave",
 	}
-}
-
-func LocateChrome() string {
-	var paths []string
-
-	switch runtime.GOOS {
-	case "darwin":
-		paths = DarwinPaths()
-	case "windows":
-		paths = WindowsPaths()
-	default:
-		paths = UnixPaths()
-	}
-
-	for _, path := range paths {
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			continue
-		}
-
-		return path
-	}
-
-	return ""
 }

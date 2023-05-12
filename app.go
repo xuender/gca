@@ -82,16 +82,17 @@ func (p *App) Static(url, path string, fsys fs.FS) {
 }
 
 func (p *App) Run(port int, update string, option *Option) {
+	addr := fmt.Sprintf("127.0.0.1:%d", port)
+
 	if p.IsDebug {
 		// nolint: gosec
-		lo.Must0(http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", port), p.r))
+		lo.Must0(http.ListenAndServe(addr, p.r))
 
 		return
 	}
 	// 平滑升级应用检查
 	overseer.SanityCheck()
 
-	addr := fmt.Sprintf("127.0.0.1:%d", port)
 	cfg := overseer.Config{
 		Program: func(state overseer.State) {
 			if slaveID := os.Getenv("OVERSEER_SLAVE_ID"); slaveID == "1" {
