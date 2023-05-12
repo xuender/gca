@@ -2,4 +2,4 @@ package gca
 
 import "errors"
 
-var ErrNotChrome = errors.New("not installed chrome")
+var ErrNotBrowser = errors.New("not installed chrome or edge browser")

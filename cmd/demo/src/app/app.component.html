@@ -20,10 +20,10 @@
         </ion-list>
 
         <ion-list id="labels-list">
-          <ion-list-header>功能</ion-list-header>
+          <ion-list-header>支持的浏览器</ion-list-header>
 
-          <ion-item *ngFor="let label of labels" lines="none">
-            <ion-icon aria-hidden="true" slot="start" ios="bookmark-outline" md="bookmark-sharp"></ion-icon>
+          <ion-item *ngFor="let label of browser" lines="none">
+            <ion-icon aria-hidden="true" slot="start" ios="browsers-outline" md="browsers-sharp"></ion-icon>
             <ion-label>{{ label }}</ion-label>
           </ion-item>
         </ion-list>

@@ -35,6 +35,7 @@ func main() {
 
 	if !isServer {
 		gin.SetMode(gin.ReleaseMode)
+		logs.SetLevel(logs.Info)
 	}
 
 	app := gca.NewApp()

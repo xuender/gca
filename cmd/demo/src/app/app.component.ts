@@ -11,6 +11,14 @@ export class AppComponent {
     { title: '支持图标', url: '/icons', icon: 'apps' },
     { title: '服务检查', url: '/ping', icon: 'planet' },
   ];
-  labels = ['纯Golang', '多平台支持', '依赖 Chrome 或 Edge'];
+  browser = [
+    'Chrome',
+    'Chromium',
+    'Edge',
+    'Brave',
+    'QQ浏览器',
+    '360急速',
+    '360安全',
+  ];
   constructor(public net: NetService) {}
 }

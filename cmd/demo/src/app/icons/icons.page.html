@@ -5,7 +5,8 @@
     </ion-buttons>
     <ion-title>图标</ion-title>
     <ion-buttons slot="end">
-      <ion-searchbar [(ngModel)]="query.text" [debounce]="500" (ngModelChange)="find()"></ion-searchbar>
+      <ion-searchbar placeholder="搜索" [(ngModel)]="query.text" [debounce]="500"
+        (ngModelChange)="find()"></ion-searchbar>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>

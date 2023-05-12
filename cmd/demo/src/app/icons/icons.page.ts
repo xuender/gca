@@ -21,6 +21,10 @@ export class IconsPage implements OnInit {
   ) {}
 
   find() {
+    if (this.query.text) {
+      this.query.text = this.query.text.toLowerCase();
+    }
+
     this.http
       .post<Result>('/api/icons', this.query)
       .subscribe((r) => (this.icons = r));

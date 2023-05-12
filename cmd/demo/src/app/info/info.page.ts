@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { NetService } from '../api/net.service';
 import { Value } from './value';
+import { filter, isString } from 'lodash';
 
 @Component({
   selector: 'app-info',
@@ -9,8 +10,32 @@ import { Value } from './value';
   styleUrls: ['./info.page.scss'],
 })
 export class InfoPage implements OnInit {
-  infos: Value[] = [];
+  query = '';
+  private _infos: Value[] = [];
   constructor(private http: HttpClient, private net: NetService) {}
+
+  get infos() {
+    if (this.query) {
+      const query = this.query.toLowerCase();
+
+      return filter(this._infos, (value) => {
+        if (value.key && value.key.toLowerCase().includes(query)) {
+          return true;
+        }
+
+        if (
+          isString(value.value) &&
+          value.value.toLowerCase().includes(query)
+        ) {
+          return true;
+        }
+
+        return false;
+      });
+    }
+
+    return this._infos;
+  }
 
   copy(value: any) {
     this.net.copy(`${value}`);
@@ -25,7 +50,7 @@ export class InfoPage implements OnInit {
       }
 
       console.log(ret);
-      this.infos = ret;
+      this._infos = ret;
     });
   }
 }
