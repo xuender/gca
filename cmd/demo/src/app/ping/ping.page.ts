@@ -13,7 +13,7 @@ export class PingPage implements OnInit {
 
   ping() {
     const start = new Date().getTime();
-    this.http.get<Message>('/api/ping').subscribe((msg) => {
+    this.http.get<Message>('/app/ping').subscribe((msg) => {
       msg.difference = new Date().getTime() - start;
       this.msgs.unshift(msg);
     });

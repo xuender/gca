@@ -8,7 +8,6 @@ import (
 	"os"
 	"runtime"
 	"strings"
-	"time"
 
 	"gitee.com/xuender/gca"
 	"github.com/gin-gonic/gin"
@@ -27,47 +26,32 @@ var Icons string
 var _icons = lo.Filter(strings.Split(Icons, "\n"), func(str string, _ int) bool { return len(str) > 0 })
 
 func main() {
-	isServer := false
+	isDebug := false
+	update := ""
+	port := 9527
 	flag.Usage = usage
-	flag.BoolVar(&isServer, "server", false, "服务模式")
+	flag.BoolVar(&isDebug, "debug", false, "调试模式")
+	flag.StringVar(&update, "update", "/tmp/demo.update", "升级网址或文件")
+	flag.IntVar(&port, "port", port, "本地端口号")
 	flag.Parse()
 
-	if !isServer {
+	if !isDebug {
 		gin.SetMode(gin.ReleaseMode)
 		logs.SetLevel(logs.Info)
 	}
 
 	app := gca.NewApp()
-	app.Server = isServer
+	app.IsDebug = isDebug
 	app.Static("/", "www", WWW)
-	app.API.GET("/ping", func(ctx *gin.Context) {
-		ret := map[string]any{}
-		ret["msg"] = "PONG"
-		ret["time"] = time.Now()
-		ctx.JSON(http.StatusOK, ret)
-	})
 	app.API.POST("/icons", icons)
 	app.API.GET("/info", info)
 
-	addr := "127.0.0.1:9527"
-
-	if !isServer {
-		go func() {
-			if err := gca.Open(
-				"http://"+addr,
-				gca.NewOption().Maximized(true),
-			); err != nil {
-				logs.E.Println(err)
-				os.Exit(1)
-			}
-		}()
-	}
-
-	app.Run(addr)
+	app.Run(port, update, gca.NewOption().Maximized(true))
 }
 
 func info(ctx *gin.Context) {
 	ret := map[string]any{}
+	ret["版本"] = "1.0.23"
 	ret["用户目录"] = base.Result1(os.UserHomeDir())
 	ret["当前目录"] = base.Result1(os.Getwd())
 	ret["GOOS"] = runtime.GOOS
@@ -157,7 +141,7 @@ func icons(ctx *gin.Context) {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "demo\n\n")
-	fmt.Fprintf(os.Stderr, "TODO: demo.\n\n")
+	fmt.Fprintf(os.Stderr, "GCA demo.\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s [flags]\n", os.Args[0])
 	flag.PrintDefaults()
 	os.Exit(1)

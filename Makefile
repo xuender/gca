@@ -23,7 +23,7 @@ dev-demo:
 	cd cmd/demo && node_modules/@ionic/cli/bin/ionic serve -- --proxy-config proxy.conf.json
 
 dev-demo-go:
-	go run cmd/demo/main.go -server
+	go run cmd/demo/main.go -debug
 
 build-demo:
 	cd cmd/demo && node_modules/@ionic/cli/bin/ionic build --prod

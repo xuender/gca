@@ -1,13 +1,17 @@
 package gca
 
 import (
+	"fmt"
 	"io"
 	"io/fs"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jpillora/overseer"
+	"github.com/jpillora/overseer/fetcher"
 	"github.com/samber/lo"
 	"github.com/xuender/kit/logs"
 	"github.com/xuender/kit/times"
@@ -18,7 +22,7 @@ type App struct {
 	r          *gin.Engine
 	API        *gin.RouterGroup
 	stopCancel func()
-	Server     bool
+	IsDebug    bool
 }
 
 func NewApp() *App {
@@ -30,8 +34,16 @@ func NewApp() *App {
 	group.POST("/unload", app.unload)
 	group.POST("/load", app.load)
 	group.POST("/clipboard", app.toClipboard) //
+	group.GET("/ping", app.ping)
 
 	return app
+}
+
+func (p *App) ping(ctx *gin.Context) {
+	ret := map[string]any{}
+	ret["msg"] = "PONG"
+	ret["time"] = time.Now()
+	ctx.JSON(http.StatusOK, ret)
 }
 
 func (p *App) toClipboard(ctx *gin.Context) {
@@ -47,9 +59,9 @@ func (p *App) toClipboard(ctx *gin.Context) {
 func (p *App) unload(ctx *gin.Context) {
 	logs.D.Println("解除加载")
 
-	if !p.Server {
+	if !p.IsDebug {
 		p.stopCancel = times.WithTimer(time.Second, func() {
-			logs.D.Println("退出")
+			logs.I.Println("退出")
 
 			os.Exit(0)
 		})
@@ -69,7 +81,44 @@ func (p *App) Static(url, path string, fsys fs.FS) {
 	p.r.Use(StaticHandler(url, fsys, path))
 }
 
-func (p *App) Run(addr string) {
-	// nolint: gosec
-	lo.Must0(http.ListenAndServe(addr, p.r))
+func (p *App) Run(port int, update string, option *Option) {
+	if p.IsDebug {
+		// nolint: gosec
+		lo.Must0(http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", port), p.r))
+
+		return
+	}
+	// 平滑升级应用检查
+	overseer.SanityCheck()
+
+	addr := fmt.Sprintf("127.0.0.1:%d", port)
+	cfg := overseer.Config{
+		Program: func(state overseer.State) {
+			slaveID := os.Getenv("OVERSEER_SLAVE_ID")
+			logs.I.Println("update:", slaveID)
+
+			if slaveID == "1" {
+				go func() {
+					if err := Open("http://"+addr, option); err != nil {
+						logs.E.Println(err)
+						os.Exit(1)
+					}
+				}()
+			}
+			// nolint: gosec
+			_ = http.Serve(state.Listener, p.r)
+		},
+		Address: addr,
+	}
+
+	if strings.HasPrefix(update, "http") {
+		cfg.Fetcher = &fetcher.HTTP{
+			URL:      update,
+			Interval: time.Minute,
+		}
+	} else {
+		cfg.Fetcher = &fetcher.File{Path: update}
+	}
+
+	overseer.Run(cfg)
 }
