@@ -14,7 +14,8 @@ export class PingPage implements OnInit {
   ping() {
     const start = new Date().getTime();
     this.http.get<Message>('/app/ping').subscribe((msg) => {
-      msg.difference = new Date().getTime() - start;
+      const dif = new Date().getTime() - start;
+      msg.difference = `${dif < 10 ? '0' : ''}${dif}`;
       this.msgs.unshift(msg);
     });
   }

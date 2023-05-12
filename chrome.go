@@ -6,7 +6,7 @@ import (
 	"runtime"
 )
 
-func Open(url string, option *Option) error {
+func Window(url string, option *Option) error {
 	chrome := LocateChrome()
 	if chrome == "" {
 		return ErrNotBrowser

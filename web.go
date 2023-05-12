@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/xuender/kit/logs"
 )
 
 // StaticHandler fs.
@@ -25,4 +26,13 @@ func StaticHandler(urlPrefix string, fsys fs.FS, dir string) gin.HandlerFunc {
 			c.Abort()
 		}
 	}
+}
+
+func Recovery(ctx *gin.Context) {
+	defer func() {
+		if err := recover(); err != nil {
+			logs.E.Println(err)
+			ctx.JSON(http.StatusInternalServerError, NewResultError(err))
+		}
+	}()
 }

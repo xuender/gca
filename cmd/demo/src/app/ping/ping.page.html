@@ -24,11 +24,14 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-list>
-    <ion-item *ngFor="let msg of msgs">
-      {{ msg.msg }}
-      <ion-badge slot="end">{{ msg.difference }}ms</ion-badge>
-      <ion-note slot="end">{{ msg.time | date:'yyyy-MM-dd HH:mm:ss'}}</ion-note>
-    </ion-item>
-  </ion-list>
+  <ion-grid [fixed]="true">
+    <ion-row>
+      <ion-col size="12" size-lg="3" size-md="4" size-sm="6" *ngFor="let msg of msgs">
+        <ion-item>
+          <ion-badge slot="start">{{ msg.difference }}ms</ion-badge>
+          {{ msg.data | date:'HH:mm:ss'}}
+        </ion-item>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

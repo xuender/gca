@@ -28,6 +28,7 @@ type App struct {
 func NewApp() *App {
 	app := &App{}
 	app.r = gin.Default()
+	app.r.Use(Recovery)
 	app.API = app.r.Group("/api")
 	group := app.r.Group("/app")
 
@@ -40,10 +41,7 @@ func NewApp() *App {
 }
 
 func (p *App) ping(ctx *gin.Context) {
-	ret := map[string]any{}
-	ret["msg"] = "PONG"
-	ret["time"] = time.Now()
-	ctx.JSON(http.StatusOK, ret)
+	ctx.JSON(http.StatusOK, NewResult(time.Now()))
 }
 
 func (p *App) toClipboard(ctx *gin.Context) {
@@ -97,7 +95,7 @@ func (p *App) Run(port int, update string, option *Option) {
 		Program: func(state overseer.State) {
 			if slaveID := os.Getenv("OVERSEER_SLAVE_ID"); slaveID == "1" {
 				go func() {
-					if err := Open("http://"+addr, option); err != nil {
+					if err := Window("http://"+addr, option); err != nil {
 						logs.E.Println(err)
 						os.Exit(1)
 					}
