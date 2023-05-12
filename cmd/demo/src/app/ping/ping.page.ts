@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Message } from './message';
 
 @Component({
@@ -7,7 +7,7 @@ import { Message } from './message';
   templateUrl: './ping.page.html',
   styleUrls: ['./ping.page.scss'],
 })
-export class PingPage implements OnInit {
+export class PingPage {
   msgs: Message[] = [];
   constructor(private http: HttpClient) {}
 
@@ -38,6 +38,4 @@ export class PingPage implements OnInit {
 
     return 'danger';
   }
-
-  ngOnInit() {}
 }

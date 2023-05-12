@@ -3,9 +3,7 @@ import { Injectable } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { fromEvent } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class AppService {
   constructor(private http: HttpClient, private toastCtrl: ToastController) {
     this.http.post('/app/load', null).subscribe();

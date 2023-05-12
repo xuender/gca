@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { EventManager } from '@angular/platform-browser';
 import { AppService } from './api/app.service';
 @Component({
   selector: 'app-root',
@@ -7,7 +6,7 @@ import { AppService } from './api/app.service';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  appPages = [
+  pages = [
     { title: '系统信息', url: '/info', icon: 'information-circle' },
     { title: '支持图标', url: '/icons', icon: 'apps' },
     { title: '服务检查', url: '/ping', icon: 'planet' },
@@ -21,5 +20,5 @@ export class AppComponent {
     '360急速',
     '360安全',
   ];
-  constructor(public app: AppService, private eventManager: EventManager) {}
+  constructor(public app: AppService) {}
 }
