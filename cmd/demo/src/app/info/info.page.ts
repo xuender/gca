@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { NetService } from '../api/net.service';
+import { AppService } from '../api/app.service';
 import { Value } from './value';
 import { filter, isString } from 'lodash';
 
@@ -12,7 +12,7 @@ import { filter, isString } from 'lodash';
 export class InfoPage implements OnInit {
   query = '';
   private _infos: Value[] = [];
-  constructor(private http: HttpClient, private net: NetService) {}
+  constructor(private http: HttpClient, private app: AppService) {}
 
   get infos() {
     if (this.query) {
@@ -38,7 +38,7 @@ export class InfoPage implements OnInit {
   }
 
   copy(value: any) {
-    this.net.copy(`${value}`);
+    this.app.copy(`${value}`);
   }
 
   ngOnInit() {
@@ -49,7 +49,6 @@ export class InfoPage implements OnInit {
         ret.push({ key, value: data[key] });
       }
 
-      console.log(ret);
       this._infos = ret;
     });
   }

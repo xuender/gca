@@ -1,12 +1,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastController } from '@ionic/angular';
+import { fromEvent } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
-export class NetService {
-  constructor(private http: HttpClient, private toastCtrl: ToastController) {}
+export class AppService {
+  constructor(private http: HttpClient, private toastCtrl: ToastController) {
+    this.http.post('/app/load', null).subscribe();
+    fromEvent(window, 'beforeunload').subscribe((_) => {
+      this.http.post('/app/unload', null).subscribe();
+    });
+  }
 
   copy(text: string) {
     this.http

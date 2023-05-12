@@ -22,18 +22,6 @@
 
 <body>
   <app-root></app-root>
-  <script type="text/javascript">
-    window.addEventListener("load", function (e) {
-      var x = new XMLHttpRequest();
-      x.open("POST", "/app/load", true);
-      x.send();
-    });
-    window.addEventListener("beforeunload", function (e) {
-      var x = new XMLHttpRequest();
-      x.open("POST", "/app/unload", true);
-      x.send();
-    });
-  </script>
 </body>
 
 </html>

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { NetService } from './api/net.service';
+import { EventManager } from '@angular/platform-browser';
+import { AppService } from './api/app.service';
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -20,5 +21,5 @@ export class AppComponent {
     '360急速',
     '360安全',
   ];
-  constructor(public net: NetService) {}
+  constructor(public app: AppService, private eventManager: EventManager) {}
 }

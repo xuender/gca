@@ -34,8 +34,7 @@ build-demo-go: build-demo
 
 proto:
 	protoc --go_out=. pb/*.proto
-	# protoc-go-inject-tag -input=**/pb/*.pb.go
-	# protoc --go_out=. pb/*.proto
+
 windows:
 	GOOS=windows GOARCH=amd64 go build -ldflags "-H windowsgui" -o dist/demo.exe cmd/demo/main.go
 

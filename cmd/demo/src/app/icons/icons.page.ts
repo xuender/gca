@@ -1,24 +1,51 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActionSheetButton, ActionSheetController } from '@ionic/angular';
-import { NetService } from '../api/net.service';
+import { AppService } from '../api/app.service';
 import { Query } from './query';
 import { Result } from './result';
+import { Subscription, fromEvent } from 'rxjs';
 
 @Component({
   selector: 'app-icons',
   templateUrl: './icons.page.html',
   styleUrls: ['./icons.page.scss'],
 })
-export class IconsPage implements OnInit {
+export class IconsPage implements OnInit, OnDestroy {
   icons: Result = {};
   query: Query = { limit: 0 };
+  private keySubscription?: Subscription;
 
   constructor(
     private http: HttpClient,
     private actionSheetCtrl: ActionSheetController,
-    private net: NetService
+    private app: AppService
   ) {}
+
+  ngOnInit() {
+    this.keySubscription = fromEvent<KeyboardEvent>(
+      window,
+      'keydown'
+    ).subscribe((event) => {
+      switch (event.key) {
+        case 'PageDown':
+          this.next();
+          break;
+        case 'PageUp':
+          this.prev();
+          break;
+        default:
+          console.log('keydown', event);
+      }
+    });
+    this.find();
+  }
+
+  ngOnDestroy(): void {
+    if (this.keySubscription) {
+      this.keySubscription.unsubscribe();
+    }
+  }
 
   find() {
     if (this.query.text) {
@@ -31,10 +58,15 @@ export class IconsPage implements OnInit {
   }
 
   next() {
-    if (this.query.limit) {
-      this.query.limit += 100;
-    } else {
-      this.query.limit = 100;
+    if (!this.query.limit) {
+      this.query.limit = 0;
+    }
+
+    let old = this.query.limit;
+    this.query.limit += 100;
+
+    if (this.icons.count && this.query.limit >= this.icons.count) {
+      this.query.limit = old;
     }
 
     this.find();
@@ -92,10 +124,6 @@ export class IconsPage implements OnInit {
       return;
     }
 
-    this.net.copy(data.data.text);
-  }
-
-  ngOnInit() {
-    this.find();
+    this.app.copy(data.data.text);
   }
 }
