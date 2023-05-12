@@ -1,4 +1,4 @@
 export interface Message {
-  difference: string;
+  dur: number;
   data: string;
 }

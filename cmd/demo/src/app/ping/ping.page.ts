@@ -14,10 +14,29 @@ export class PingPage implements OnInit {
   ping() {
     const start = new Date().getTime();
     this.http.get<Message>('/app/ping').subscribe((msg) => {
-      const dif = new Date().getTime() - start;
-      msg.difference = `${dif < 10 ? '0' : ''}${dif}`;
+      msg.dur = new Date().getTime() - start;
       this.msgs.unshift(msg);
     });
+  }
+
+  color(dur: number) {
+    if (dur < 10) {
+      return 'success';
+    }
+
+    if (dur < 20) {
+      return 'secondary';
+    }
+
+    if (dur < 30) {
+      return 'tertiary';
+    }
+
+    if (dur < 40) {
+      return 'warning';
+    }
+
+    return 'danger';
   }
 
   ngOnInit() {}
