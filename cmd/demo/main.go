@@ -15,7 +15,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/xuender/kit/base"
 	"github.com/xuender/kit/logs"
-	"golang.design/x/clipboard"
 )
 
 //go:embed www/**
@@ -48,7 +47,6 @@ func main() {
 		ctx.JSON(http.StatusOK, ret)
 	})
 	app.API.POST("/icons", icons)
-	app.API.POST("/clipboard", toClipboard)
 	app.API.GET("/info", info)
 
 	addr := "127.0.0.1:9527"
@@ -66,14 +64,6 @@ func main() {
 	}
 
 	app.Run(addr)
-}
-
-func toClipboard(ctx *gin.Context) {
-	query := &Query{}
-	_ = ctx.Bind(query)
-	logs.D.Println(query.Text)
-	clipboard.Write(clipboard.FmtText, []byte(query.Text))
-	ctx.JSON(http.StatusOK, true)
 }
 
 func info(ctx *gin.Context) {

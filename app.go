@@ -1,6 +1,7 @@
 package gca
 
 import (
+	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/xuender/kit/logs"
 	"github.com/xuender/kit/times"
+	"golang.design/x/clipboard"
 )
 
 type App struct {
@@ -27,8 +29,19 @@ func NewApp() *App {
 
 	group.POST("/unload", app.unload)
 	group.POST("/load", app.load)
+	group.POST("/clipboard", app.toClipboard) //
 
 	return app
+}
+
+func (p *App) toClipboard(ctx *gin.Context) {
+	fmt := clipboard.FmtText
+	if ctx.DefaultQuery("fmt", "Text") != "Text" {
+		fmt = clipboard.FmtImage
+	}
+
+	clipboard.Write(fmt, lo.Must1(io.ReadAll(ctx.Request.Body)))
+	ctx.JSON(http.StatusOK, true)
 }
 
 func (p *App) unload(ctx *gin.Context) {
