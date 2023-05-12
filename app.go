@@ -94,16 +94,15 @@ func (p *App) Run(port int, update string, option *Option) {
 	addr := fmt.Sprintf("127.0.0.1:%d", port)
 	cfg := overseer.Config{
 		Program: func(state overseer.State) {
-			slaveID := os.Getenv("OVERSEER_SLAVE_ID")
-			logs.I.Println("update:", slaveID)
-
-			if slaveID == "1" {
+			if slaveID := os.Getenv("OVERSEER_SLAVE_ID"); slaveID == "1" {
 				go func() {
 					if err := Open("http://"+addr, option); err != nil {
 						logs.E.Println(err)
 						os.Exit(1)
 					}
 				}()
+			} else {
+				logs.I.Println("升级:", slaveID)
 			}
 			// nolint: gosec
 			_ = http.Serve(state.Listener, p.r)
@@ -111,7 +110,7 @@ func (p *App) Run(port int, update string, option *Option) {
 		Address: addr,
 	}
 
-	if strings.HasPrefix(update, "http") {
+	if strings.HasPrefix(strings.ToLower(update), "http") {
 		cfg.Fetcher = &fetcher.HTTP{
 			URL:      update,
 			Interval: time.Minute,
