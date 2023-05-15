@@ -73,11 +73,11 @@ export class IconsPage implements OnInit, OnDestroy {
   }
 
   prev() {
-    if (this.query.limit) {
-      this.query.limit -= 100;
-    } else {
-      this.query.limit = 0;
+    if (!this.query.limit) {
+      return;
     }
+
+    this.query.limit -= 100;
 
     if (this.query.limit < 0) {
       this.query.limit = 0;
