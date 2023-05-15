@@ -28,7 +28,7 @@ var _icons = lo.Filter(strings.Split(Icons, "\n"), func(str string, _ int) bool 
 func main() {
 	isDebug := false
 	update := ""
-	port := 9527
+	port := 0
 	flag.Usage = usage
 	flag.BoolVar(&isDebug, "debug", false, "调试模式")
 	flag.StringVar(&update, "update", "/tmp/demo.update", "升级网址或文件")

@@ -80,6 +80,10 @@ func (p *App) Static(url, path string, fsys fs.FS) {
 }
 
 func (p *App) Run(port int, update string, option *Option) {
+	if min := 1000; port < min {
+		port = RandomPort()
+	}
+
 	addr := fmt.Sprintf("127.0.0.1:%d", port)
 
 	if p.IsDebug {
@@ -94,6 +98,8 @@ func (p *App) Run(port int, update string, option *Option) {
 	cfg := overseer.Config{
 		Program: func(state overseer.State) {
 			if slaveID := os.Getenv("OVERSEER_SLAVE_ID"); slaveID == "1" {
+				logs.I.Println(addr)
+
 				go func() {
 					if err := Window("http://"+addr, option); err != nil {
 						logs.E.Println(err)
