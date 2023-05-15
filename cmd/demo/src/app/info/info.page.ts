@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { filter, isNumber, isString } from 'lodash';
 import { AppService } from '../api/app.service';
 import { Value } from './value';
-import { filter, isString } from 'lodash';
 
 @Component({
   selector: 'app-info',
@@ -46,7 +46,15 @@ export class InfoPage implements OnInit {
       const ret: Value[] = [];
 
       for (const key in data) {
-        ret.push({ key, value: data[key] });
+        let value = data[key];
+        if (isNumber(value)) {
+          value = value.toLocaleString();
+        }
+
+        ret.push({
+          key,
+          value,
+        });
       }
 
       this._infos = ret;
