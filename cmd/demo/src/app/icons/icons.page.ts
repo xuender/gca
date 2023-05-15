@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActionSheetButton, ActionSheetController } from '@ionic/angular';
 import { AppService } from '../api/app.service';
 import { Query } from './query';
-import { Result } from './result';
+import { Result } from '../api/result';
 import { Subscription, fromEvent } from 'rxjs';
 
 @Component({
@@ -12,7 +12,7 @@ import { Subscription, fromEvent } from 'rxjs';
   styleUrls: ['./icons.page.scss'],
 })
 export class IconsPage implements OnInit, OnDestroy {
-  icons: Result = {};
+  icons: Result<string[]> = {};
   query: Query = { limit: 0 };
   private keySubscription?: Subscription;
 
@@ -53,7 +53,7 @@ export class IconsPage implements OnInit, OnDestroy {
     }
 
     this.http
-      .post<Result>('/api/icons', this.query)
+      .post<Result<string[]>>('/api/icons', this.query)
       .subscribe((r) => (this.icons = r));
   }
 

@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ToastController } from '@ionic/angular';
+import { ToastController, ToastOptions } from '@ionic/angular';
 import { fromEvent } from 'rxjs';
+import { Result } from './result';
 
 @Injectable({ providedIn: 'root' })
 export class AppService {
@@ -14,17 +15,21 @@ export class AppService {
 
   copy(text: string) {
     this.http
-      .post<boolean>('/app/clipboard', text)
+      .post<Result<boolean>>('/app/clipboard', text)
       .subscribe(async (result) => {
-        if (result) {
-          const toast = await this.toastCtrl.create({
-            message: `[ ${text} ] 复制到剪切板`,
-            duration: 1500,
-            position: 'top',
-          });
-
-          await toast.present();
+        const opts: ToastOptions = { position: 'top' };
+        if (result.success) {
+          opts.message = `[ ${text} ] 已复制。`;
+          opts.icon = 'information-circle';
+          opts.duration = 1500;
+        } else {
+          opts.message = result.error;
+          opts.icon = 'sad';
+          opts.buttons = [{ text: '关闭', role: 'cancel' }];
         }
+
+        const toast = await this.toastCtrl.create(opts);
+        await toast.present();
       });
   }
 }

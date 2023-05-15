@@ -6,6 +6,7 @@ type Result[T any] struct {
 	Success bool   `json:"success"`
 	Error   string `json:"error"`
 	Data    T      `json:"data"`
+	Count   int    `json:"count"`
 }
 
 func NewResultError(err any) *Result[any] {

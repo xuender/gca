@@ -51,7 +51,7 @@ func (p *App) toClipboard(ctx *gin.Context) {
 	}
 
 	clipboard.Write(fmt, lo.Must1(io.ReadAll(ctx.Request.Body)))
-	ctx.JSON(http.StatusOK, true)
+	ctx.JSON(http.StatusOK, NewResult(true))
 }
 
 func (p *App) unload(ctx *gin.Context) {

@@ -121,7 +121,7 @@ func icons(ctx *gin.Context) {
 		})
 	}
 
-	ret := map[string]any{}
+	ret := &gca.Result[[]string]{}
 
 	left := query.Limit
 	if left >= len(data) {
@@ -133,8 +133,8 @@ func icons(ctx *gin.Context) {
 		right = len(data)
 	}
 
-	ret["data"] = data[left:right]
-	ret["count"] = len(data)
+	ret.Data = data[left:right]
+	ret.Count = len(data)
 
 	ctx.JSON(http.StatusOK, ret)
 }
