@@ -23,7 +23,7 @@ type App struct {
 	API        *gin.RouterGroup
 	stopCancel func()
 	IsDebug    bool
-	Start      func()
+	OnStart    func()
 }
 
 func NewApp() *App {
@@ -107,8 +107,8 @@ func (p *App) Run(port int, update string, option *Option) {
 						os.Exit(1)
 					}
 
-					if p.Start != nil {
-						p.Start()
+					if p.OnStart != nil {
+						p.OnStart()
 					}
 				}()
 			} else {
