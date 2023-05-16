@@ -23,6 +23,7 @@ type App struct {
 	API        *gin.RouterGroup
 	stopCancel func()
 	IsDebug    bool
+	Start      func()
 }
 
 func NewApp() *App {
@@ -104,6 +105,10 @@ func (p *App) Run(port int, update string, option *Option) {
 					if err := Window("http://"+addr, option); err != nil {
 						logs.E.Println(err)
 						os.Exit(1)
+					}
+
+					if p.Start != nil {
+						p.Start()
 					}
 				}()
 			} else {
