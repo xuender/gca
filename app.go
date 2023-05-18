@@ -27,7 +27,7 @@ type App[M proto.Message] struct {
 	upGrader   websocket.Upgrader
 	stopCancel func()
 	IsDebug    bool
-	OnStart    func()
+	OnStart    func(*websocket.Conn)
 	OnSay      func(M, *websocket.Conn)
 	NewMsg     func() M
 }
@@ -64,6 +64,10 @@ func (p *App[M]) ws(ctx *gin.Context) {
 		conn.Close()
 		p.unload(ctx)
 	}()
+
+	if p.OnSay != nil {
+		go p.OnStart(conn)
+	}
 
 	for {
 		// 读取ws中的数据
@@ -140,8 +144,8 @@ func (p *App[M]) Run(port int, update string, option *Option) {
 	addr := fmt.Sprintf("127.0.0.1:%d", port)
 
 	if p.IsDebug {
-		if p.OnStart != nil {
-			go p.OnStart()
+		if p.OnStart != nil && p.OnSay == nil {
+			go p.OnStart(nil)
 		}
 		// nolint: gosec
 		lo.Must0(http.ListenAndServe(addr, p.r))
@@ -156,8 +160,8 @@ func (p *App[M]) Run(port int, update string, option *Option) {
 			if slaveID := os.Getenv("OVERSEER_SLAVE_ID"); slaveID == "1" {
 				logs.I.Println(addr)
 
-				if p.OnStart != nil {
-					go p.OnStart()
+				if p.OnStart != nil && p.OnSay == nil {
+					go p.OnStart(nil)
 				}
 
 				go func() {
