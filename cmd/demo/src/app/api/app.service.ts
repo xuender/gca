@@ -36,6 +36,7 @@ export class AppService {
   );
 
   constructor(private http: HttpClient, private toastCtrl: ToastController) {
+    this.onMsg$.subscribe((msg) => console.log(msg));
     // this.http.post('/app/load', null).subscribe();
     // fromEvent(window, 'beforeunload').subscribe((_) => {
     //   this.http.post('/app/unload', null).subscribe();
