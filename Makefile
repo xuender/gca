@@ -33,7 +33,12 @@ build-demo-go: build-demo
 	go build -o dist/gca-demo cmd/demo/main.go
 
 proto:
-	protoc --go_out=. pb/*.proto
+	# protoc --go_out=. pb/*.proto
+	protoc --go_out=. cmd/demo/pb/*.proto
+
+protojs:
+	cd cmd/demo && node_modules/.bin/pbjs -t static-module -w commonjs -o src/pb.js pb/*.proto
+	cd cmd/demo && node_modules/.bin/pbts -o src/pb.d.ts src/pb.js
 
 windows:
 	GOOS=windows GOARCH=amd64 go build -ldflags "-H windowsgui" -o dist/demo.exe cmd/demo/main.go

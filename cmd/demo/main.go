@@ -8,12 +8,16 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 
 	"gitee.com/xuender/gca"
+	"gitee.com/xuender/gca/cmd/demo/pb"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"github.com/samber/lo"
 	"github.com/xuender/kit/base"
 	"github.com/xuender/kit/logs"
+	"google.golang.org/protobuf/proto"
 )
 
 //go:embed www/**
@@ -40,13 +44,24 @@ func main() {
 		logs.SetLevel(logs.Info)
 	}
 
-	app := gca.NewApp()
+	app := gca.NewApp[*pb.Msg]()
 	app.IsDebug = isDebug
 	app.Static("/", "www", WWW)
 	app.API.POST("/icons", icons)
 	app.API.GET("/info", info)
+	app.OnSay = say
+	app.NewMsg = func() *pb.Msg { return &pb.Msg{} }
 
 	app.Run(port, update, gca.NewOption().Maximized(true))
+}
+
+func say(msg *pb.Msg, conn *websocket.Conn) {
+	msg.Data = time.Now().Format("2006-01-02T15:04:05Z")
+	data, _ := proto.Marshal(msg)
+
+	if err := conn.WriteMessage(websocket.BinaryMessage, data); err != nil {
+		logs.E.Println(err)
+	}
 }
 
 func info(ctx *gin.Context) {

@@ -6,11 +6,13 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.9.0
+	github.com/gorilla/websocket v1.5.0
 	github.com/jpillora/overseer v1.1.6
 	github.com/samber/lo v1.37.0
 	github.com/stretchr/testify v1.8.1
 	github.com/xuender/kit v1.0.12
 	golang.design/x/clipboard v0.7.0
+	google.golang.org/protobuf v1.28.1
 )
 
 require (
@@ -45,6 +47,5 @@ require (
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

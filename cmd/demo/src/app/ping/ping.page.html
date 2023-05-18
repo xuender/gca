@@ -29,7 +29,8 @@
       <ion-col size="12" size-lg="3" size-md="4" size-sm="6" *ngFor="let msg of msgs">
         <ion-item>
           <ion-badge slot="start" [color]="color(msg.dur)">{{ msg.dur < 10 ? '0' :'' }}{{ msg.dur }}ms</ion-badge>
-              {{ msg.data | date:'HH:mm:ss'}}
+              {{ msg.type }}
+              <ion-note slot="end">{{ msg.data | date:'HH:mm:ss'}}</ion-note>
         </ion-item>
       </ion-col>
     </ion-row>

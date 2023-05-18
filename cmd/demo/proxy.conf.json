@@ -3,6 +3,11 @@
     "target": "http://127.0.0.1:9527",
     "secure": false
   },
+  "/ws": {
+    "target": "http://127.0.0.1:9527",
+    "secure": false,
+    "ws": true
+  },
   "/app": {
     "target": "http://127.0.0.1:9527",
     "secure": false
