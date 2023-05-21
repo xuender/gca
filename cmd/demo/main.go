@@ -56,6 +56,7 @@ func main() {
 }
 
 func say(msg *pb.Msg, conn *websocket.Conn) {
+	logs.I.Println("Message")
 	msg.Data = time.Now().Format("2006-01-02T15:04:05Z")
 	data, _ := proto.Marshal(msg)
 

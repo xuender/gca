@@ -65,7 +65,7 @@ func (p *App[M]) ws(ctx *gin.Context) {
 		p.unload(ctx)
 	}()
 
-	if p.OnSay != nil {
+	if p.OnStart != nil && p.OnSay != nil {
 		go p.OnStart(conn)
 	}
 
