@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"gitee.com/xuender/gca/form"
 	"github.com/gin-gonic/gin"
 	"github.com/xuender/kit/logs"
 )
@@ -34,13 +35,18 @@ func StaticHandler(urlPrefix string, fsys fs.FS, dir string) gin.HandlerFunc {
 	}
 }
 
-func Recovery(ctx *gin.Context) {
-	defer func() {
-		if err := recover(); err != nil {
-			logs.E.Println(err)
-			ctx.JSON(http.StatusInternalServerError, NewResultError(err))
-		}
-	}()
+func Recovery() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		defer func() {
+			if err := recover(); err != nil {
+				logs.E.Println("异常:", err)
+				ctx.JSON(http.StatusInternalServerError, form.NewResultError(err))
+				ctx.Abort()
+			}
+		}()
+
+		ctx.Next()
+	}
 }
 
 // RandomPort 随机可用的端口号.

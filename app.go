@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"gitee.com/xuender/gca/form"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/jpillora/overseer"
@@ -38,8 +39,8 @@ func NewApp[M proto.Message]() *App[M] {
 			CheckOrigin: func(r *http.Request) bool { return true },
 		},
 	}
-	app.r = gin.Default()
-	app.r.Use(Recovery)
+	app.r = gin.New()
+	app.r.Use(gin.Logger(), Recovery())
 	app.r.GET("/ws", app.ws)
 	app.API = app.r.Group("/api")
 	group := app.r.Group("/app")
@@ -98,7 +99,7 @@ func (p *App[M]) ws(ctx *gin.Context) {
 }
 
 func (p *App[M]) ping(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, NewResult(time.Now()))
+	ctx.JSON(http.StatusOK, form.NewResult(time.Now()))
 }
 
 func (p *App[M]) toClipboard(ctx *gin.Context) {
@@ -108,7 +109,7 @@ func (p *App[M]) toClipboard(ctx *gin.Context) {
 	}
 
 	clipboard.Write(fmt, lo.Must1(io.ReadAll(ctx.Request.Body)))
-	ctx.JSON(http.StatusOK, NewResult(true))
+	ctx.JSON(http.StatusOK, form.NewResult(true))
 }
 
 func (p *App[M]) unload(ctx *gin.Context) {

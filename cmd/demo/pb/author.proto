@@ -1,0 +1,11 @@
+syntax = "proto3";
+package pb;
+option go_package = "./cmd/demo/pb";
+// Author 作者.
+message Author {
+	// ID 主健.
+  uint64 ID = 1;
+  // Name 姓名.
+  // @gotags: validate:"required,min=2,max=20" form:"label=姓名"
+  string name = 2;
+}

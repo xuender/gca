@@ -3,6 +3,7 @@ default: lint test
 tools:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	go install github.com/cespare/reflex@latest
+	go install github.com/favadi/protoc-go-inject-tag@latest
 
 lint:
 	golangci-lint run --timeout 60s --max-same-issues 50 ./...
@@ -35,6 +36,7 @@ build-demo-go: build-demo
 proto:
 	# protoc --go_out=. pb/*.proto
 	protoc --go_out=. cmd/demo/pb/*.proto
+	protoc-go-inject-tag -input=cmd/demo/pb/*.pb.go
 
 protojs:
 	cd cmd/demo && node_modules/.bin/pbjs -t static-module -w commonjs -o src/pb.js pb/*.proto
