@@ -15,7 +15,7 @@ Content-Type: application/json
 {"title":"时间简史2"}
 
 ### delete
-DELETE  http://localhost:9527/api/book/2854967312384
+DELETE  http://localhost:9527/api/book/2855113064448
 ### 错误的增加
 POST http://localhost:9527/api/book
 Content-Type: application/json

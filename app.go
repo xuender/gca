@@ -47,7 +47,7 @@ func NewApp[M proto.Message]() *App[M] {
 
 	group.POST("/unload", app.unload)
 	group.POST("/load", app.load)
-	group.POST("/clipboard", app.toClipboard) //
+	group.POST("/clipboard", app.toClipboard)
 	group.GET("/ping", app.ping)
 
 	return app

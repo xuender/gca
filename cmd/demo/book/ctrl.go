@@ -43,7 +43,7 @@ func (p *Ctrl) Group(router *gin.RouterGroup) {
 
 func (p *Ctrl) List(ctx *gin.Context) {
 	ret := []*Book{}
-	lo.Must0(p.db.Find(&ret).Error)
+	lo.Must0(form.Query(ctx, p.db).Find(&ret).Error)
 
 	ctx.JSON(http.StatusOK, ToPbBooks(ret))
 }
