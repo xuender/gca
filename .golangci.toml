@@ -1,5 +1,7 @@
 [linters]
 disable = [
+  "depguard",
+  "gosmopolitan",
   "ireturn",
   "wastedassign",
   "unused",

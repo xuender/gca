@@ -3,6 +3,7 @@ package gca
 import (
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"math/rand"
 	"net"
 	"net/http"
@@ -10,9 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"gitee.com/xuender/gca/form"
 	"github.com/gin-gonic/gin"
-	"github.com/xuender/kit/logs"
 )
 
 // StaticHandler fs.
@@ -39,8 +38,8 @@ func Recovery() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				logs.E.Println("异常:", err)
-				ctx.JSON(http.StatusInternalServerError, form.NewResultError(err))
+				slog.Error("异常:", err)
+				ctx.JSON(http.StatusInternalServerError, err)
 				ctx.Abort()
 			}
 		}()

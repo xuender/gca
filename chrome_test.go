@@ -12,5 +12,5 @@ func TestWindowsPaths(t *testing.T) {
 
 	ass := assert.New(t)
 	paths := gca.WindowsPaths()
-	ass.Equal(21, len(paths))
+	ass.Len(paths, 21)
 }

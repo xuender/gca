@@ -79,6 +79,7 @@ func unixPaths() []string {
 		"/usr/bin/microsoft-edge",
 		"/usr/bin/google-chrome-stable",
 		"/usr/bin/google-chrome",
+		"/usr/bin/google-chrome-beta",
 		"/usr/bin/chromium",
 		"/usr/bin/chromium-browser",
 		"/usr/bin/brave-browser",

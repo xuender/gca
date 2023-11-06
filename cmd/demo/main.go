@@ -4,6 +4,7 @@ import (
 	"embed"
 	"flag"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"runtime"
@@ -11,18 +12,17 @@ import (
 	"time"
 
 	"gitee.com/xuender/gca"
-	"gitee.com/xuender/gca/cmd/demo/book"
 	"gitee.com/xuender/gca/cmd/demo/pb"
-	"gitee.com/xuender/gca/form"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/samber/lo"
 	"github.com/xuender/kit/base"
 	"github.com/xuender/kit/logs"
+	"github.com/xuender/kit/los"
 	"google.golang.org/protobuf/proto"
 )
 
-//go:embed www/**
+//go:embed www
 var WWW embed.FS
 
 //go:embed icons.txt
@@ -48,26 +48,24 @@ func main() {
 
 	app := gca.NewApp[*pb.Msg]()
 	app.IsDebug = isDebug
-	app.Static("/", "www", WWW)
+	app.Static(WWW, "www")
 	app.API.POST("/icons", icons)
 	app.API.GET("/info", info)
 	app.OnSay = say
 	app.NewMsg = func() *pb.Msg { return &pb.Msg{} }
 	// NewBookService().Group(app.API.Group("/book"))
-	book.NewCtrl().Group(app.API.Group("/book"))
+	// book.NewCtrl().Group(app.API.Group("/book"))
 
 	app.Run(port, update, gca.NewOption().Maximized(true))
 }
 
 func say(msg *pb.Msg, conn *websocket.Conn) {
-	logs.I.Println("Message")
+	slog.Info("Message")
 
 	msg.Data = time.Now().Format("2006-01-02T15:04:05Z")
 	data, _ := proto.Marshal(msg)
 
-	if err := conn.WriteMessage(websocket.BinaryMessage, data); err != nil {
-		logs.E.Println(err)
-	}
+	los.Must0(conn.WriteMessage(websocket.BinaryMessage, data))
 }
 
 func info(ctx *gin.Context) {
@@ -142,8 +140,6 @@ func icons(ctx *gin.Context) {
 		})
 	}
 
-	ret := &form.Result[[]string]{}
-
 	left := query.Limit
 	if left >= len(data) {
 		left = len(data)
@@ -154,10 +150,7 @@ func icons(ctx *gin.Context) {
 		right = len(data)
 	}
 
-	ret.Data = data[left:right]
-	ret.Count = len(data)
-
-	ctx.JSON(http.StatusOK, ret)
+	ctx.JSON(http.StatusOK, data[left:right])
 }
 
 func usage() {

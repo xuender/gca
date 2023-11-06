@@ -5,18 +5,19 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	"gitee.com/xuender/gca/form"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/jpillora/overseer"
 	"github.com/jpillora/overseer/fetcher"
-	"github.com/samber/lo"
-	"github.com/xuender/kit/logs"
+	"github.com/xuender/kgin"
+	"github.com/xuender/kit/los"
+	"github.com/xuender/kit/oss"
 	"github.com/xuender/kit/times"
 	"golang.design/x/clipboard"
 	"google.golang.org/protobuf/proto"
@@ -26,6 +27,7 @@ type App[M proto.Message] struct {
 	r          *gin.Engine
 	API        *gin.RouterGroup
 	upGrader   websocket.Upgrader
+	pro        *oss.ProcInfo
 	stopCancel func()
 	IsDebug    bool
 	OnStart    func(*websocket.Conn)
@@ -38,9 +40,10 @@ func NewApp[M proto.Message]() *App[M] {
 		upGrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool { return true },
 		},
+		pro: oss.NewProcInfo(),
 	}
-	app.r = gin.New()
-	app.r.Use(gin.Logger(), Recovery())
+	app.r = kgin.Default()
+	app.r.Use(kgin.RecoveryHandler)
 	app.r.GET("/ws", app.ws)
 	app.API = app.r.Group("/api")
 	group := app.r.Group("/app")
@@ -78,7 +81,7 @@ func (p *App[M]) ws(ctx *gin.Context) {
 		}
 
 		if mt != websocket.BinaryMessage {
-			logs.D.Println(string(message))
+			slog.Info(string(message))
 
 			continue
 		}
@@ -99,7 +102,7 @@ func (p *App[M]) ws(ctx *gin.Context) {
 }
 
 func (p *App[M]) ping(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, form.NewResult(time.Now()))
+	ctx.String(http.StatusOK, p.pro.String())
 }
 
 func (p *App[M]) toClipboard(ctx *gin.Context) {
@@ -108,48 +111,60 @@ func (p *App[M]) toClipboard(ctx *gin.Context) {
 		fmt = clipboard.FmtImage
 	}
 
-	clipboard.Write(fmt, lo.Must1(io.ReadAll(ctx.Request.Body)))
-	ctx.JSON(http.StatusOK, form.NewResult(true))
+	clipboard.Write(fmt, los.Must(io.ReadAll(ctx.Request.Body)))
+	ctx.JSON(http.StatusOK, true)
 }
 
 func (p *App[M]) unload(ctx *gin.Context) {
-	logs.D.Println("解除加载")
+	slog.Info("解除加载")
 
 	if !p.IsDebug {
 		p.stopCancel = times.WithTimer(time.Second, func() {
-			logs.I.Println("退出")
+			slog.Info("退出")
 
 			os.Exit(0)
 		})
 	}
+
+	ctx.String(http.StatusOK, "unload")
 }
 
 func (p *App[M]) load(ctx *gin.Context) {
-	logs.D.Println("加载")
+	slog.Info("加载")
 
 	if p.stopCancel != nil {
 		p.stopCancel()
-		logs.D.Println("取消退出")
+		slog.Info("取消退出")
 	}
+
+	ctx.String(http.StatusOK, "load")
 }
 
-func (p *App[M]) Static(url, path string, fsys fs.FS) {
-	p.r.Use(StaticHandler(url, fsys, path))
+func (p *App[M]) Static(fsys fs.FS, path string) {
+	p.r.NoRoute(kgin.StaticHandler(fsys, path))
 }
 
-func (p *App[M]) Run(port int, update string, option *Option) {
+func getAddr(port int) string {
 	if min := 1000; port < min {
 		port = RandomPort()
 	}
 
-	addr := fmt.Sprintf("127.0.0.1:%d", port)
+	return fmt.Sprintf("127.0.0.1:%d", port)
+}
 
-	if p.IsDebug {
+func (p *App[M]) Run(port int, upgrade string, option *Option) {
+	addr := getAddr(port)
+
+	if p.IsDebug || upgrade == "" {
 		if p.OnStart != nil && p.OnSay == nil {
 			go p.OnStart(nil)
 		}
+
+		if upgrade == "" {
+			openUI(addr, option)
+		}
 		// nolint: gosec
-		lo.Must0(http.ListenAndServe(addr, p.r))
+		los.Must0(http.ListenAndServe(addr, p.r))
 
 		return
 	}
@@ -158,36 +173,41 @@ func (p *App[M]) Run(port int, update string, option *Option) {
 
 	cfg := overseer.Config{
 		Program: func(state overseer.State) {
-			if slaveID := os.Getenv("OVERSEER_SLAVE_ID"); slaveID == "1" {
-				logs.I.Println(addr)
+			slaveID := os.Getenv("OVERSEER_SLAVE_ID")
+			if slaveID == "1" {
+				slog.Info(addr)
 
 				if p.OnStart != nil && p.OnSay == nil {
 					go p.OnStart(nil)
 				}
 
-				go func() {
-					if err := Window("http://"+addr, option); err != nil {
-						logs.E.Println(err)
-						os.Exit(1)
-					}
-				}()
-			} else {
-				logs.I.Println("升级:", slaveID)
+				openUI(addr, option)
 			}
+
+			slog.Info("升级:", "slave", slaveID)
 			// nolint: gosec
 			_ = http.Serve(state.Listener, p.r)
 		},
 		Address: addr,
 	}
 
-	if strings.HasPrefix(strings.ToLower(update), "http") {
+	if strings.HasPrefix(strings.ToLower(upgrade), "http") {
 		cfg.Fetcher = &fetcher.HTTP{
-			URL:      update,
+			URL:      upgrade,
 			Interval: time.Minute,
 		}
 	} else {
-		cfg.Fetcher = &fetcher.File{Path: update}
+		cfg.Fetcher = &fetcher.File{Path: upgrade}
 	}
 
 	overseer.Run(cfg)
+}
+
+func openUI(addr string, option *Option) {
+	go func() {
+		if err := Window("http://"+addr, option); err != nil {
+			los.Must0(err)
+			os.Exit(1)
+		}
+	}()
 }
