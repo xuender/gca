@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"gitee.com/xuender/gca"
-	"gitee.com/xuender/gca/cmd/demo/pb"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/samber/lo"
+	"github.com/xuender/gca"
+	"github.com/xuender/gca/cmd/demo/pb"
 	"github.com/xuender/kit/base"
 	"github.com/xuender/kit/logs"
 	"github.com/xuender/kit/los"

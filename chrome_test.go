@@ -3,8 +3,8 @@ package gca_test
 import (
 	"testing"
 
-	"gitee.com/xuender/gca"
 	"github.com/stretchr/testify/assert"
+	"github.com/xuender/gca"
 )
 
 func TestWindowsPaths(t *testing.T) {

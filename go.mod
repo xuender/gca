@@ -1,4 +1,4 @@
-module gitee.com/xuender/gca
+module github.com/xuender/gca
 
 go 1.21
 
