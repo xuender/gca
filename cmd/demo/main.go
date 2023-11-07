@@ -33,11 +33,9 @@ var _icons = lo.Filter(strings.Split(Icons, "\n"), func(str string, _ int) bool 
 
 func main() {
 	isDebug := false
-	update := ""
 	port := 0
 	flag.Usage = usage
 	flag.BoolVar(&isDebug, "debug", false, "调试模式")
-	flag.StringVar(&update, "update", "/tmp/demo.update", "升级网址或文件")
 	flag.IntVar(&port, "port", port, "本地端口号")
 	flag.Parse()
 
@@ -56,7 +54,7 @@ func main() {
 	// NewBookService().Group(app.API.Group("/book"))
 	// book.NewCtrl().Group(app.API.Group("/book"))
 
-	app.Run(port, update, gca.NewOption().Maximized(true))
+	app.Run(port, gca.NewOption().Maximized(true))
 }
 
 func say(msg *pb.Msg, conn *websocket.Conn) {
