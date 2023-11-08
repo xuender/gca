@@ -3,6 +3,18 @@ package pb;
 option go_package = "./cmd/demo/pb";
 // Msg 消息.
 message Msg {
-  string data = 1;
-  int64 number = 2;
+	Type type = 1;
+	string data = 2;
+	int64 number = 3;
+	int64 count = 4;
+	string text = 5;
+	int64 offset = 6;
+	repeated string icons = 7;
+	map<string,string> info = 8;
+}
+
+enum Type {
+	ping = 0;
+	icons = 1;
+	info = 2;
 }

@@ -9,20 +9,18 @@ import (
 	"os"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/xuender/kgin"
 	"github.com/xuender/kit/los"
 	"github.com/xuender/kit/times"
 	"google.golang.org/protobuf/proto"
 )
 
+const DebugPort = 8080
+
 type App[M proto.Message] struct {
-	r          *gin.Engine
-	API        *gin.RouterGroup
 	upGrader   websocket.Upgrader
 	stopCancel func()
-	IsDebug    bool
+	isDebug    bool
 	OnStart    func(*websocket.Conn)
 	OnSay      func(M, *websocket.Conn)
 	NewMsg     func() M
@@ -34,16 +32,12 @@ func NewApp[M proto.Message]() *App[M] {
 			CheckOrigin: func(r *http.Request) bool { return true },
 		},
 	}
-	app.r = kgin.Default()
-	app.r.Use(kgin.RecoveryHandler)
-	app.r.GET("/ws", app.ws)
-	app.API = app.r.Group("/api")
 
 	return app
 }
 
-func (p *App[M]) ws(ctx *gin.Context) {
-	conn, err := p.upGrader.Upgrade(ctx.Writer, ctx.Request, nil)
+func (p *App[M]) ws(writer http.ResponseWriter, request *http.Request) {
+	conn, err := p.upGrader.Upgrade(writer, request, nil)
 	if err != nil {
 		return
 	}
@@ -89,7 +83,7 @@ func (p *App[M]) ws(ctx *gin.Context) {
 func (p *App[M]) unload() {
 	slog.Info("unload")
 
-	if !p.IsDebug {
+	if !p.isDebug {
 		p.stopCancel = times.WithTimer(time.Second, func() {
 			slog.Info("exit")
 
@@ -108,7 +102,7 @@ func (p *App[M]) load() {
 }
 
 func (p *App[M]) Static(fsys fs.FS, path string) {
-	p.r.NoRoute(kgin.StaticHandler(fsys, path))
+	http.HandleFunc("/", StaticHandler(fsys, path))
 }
 
 func getAddr(port int) string {
@@ -121,12 +115,13 @@ func getAddr(port int) string {
 
 func (p *App[M]) Run(port int, option *Option) {
 	addr := getAddr(port)
+	p.isDebug = port == DebugPort
 
 	if p.OnStart != nil && p.OnSay == nil {
 		go p.OnStart(nil)
 	}
 
-	if !p.IsDebug {
+	if !p.isDebug {
 		go func() {
 			if err := Window("http://"+addr, option); err != nil {
 				los.Must0(err)
@@ -134,6 +129,8 @@ func (p *App[M]) Run(port int, option *Option) {
 			}
 		}()
 	}
+
+	http.HandleFunc("/ws", p.ws)
 	// nolint: gosec
-	los.Must0(http.ListenAndServe(addr, p.r))
+	los.Must0(http.ListenAndServe(addr, nil))
 }

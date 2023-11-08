@@ -1,10 +1,9 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ToastController, ToastOptions } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 import { NextObserver, map, share } from 'rxjs';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
+
 import { pb } from 'src/pb';
-import { Result } from './result';
 
 @Injectable({ providedIn: 'root' })
 export class AppService {
@@ -26,6 +25,7 @@ export class AppService {
     serializer: (v) => v as ArrayBuffer,
     deserializer: (v) => v.data,
   });
+
   onMsg$ = this.ws.pipe(
     map((msg) => {
       const buf = new Uint8Array(msg as ArrayBuffer);
@@ -35,7 +35,7 @@ export class AppService {
     share()
   );
 
-  constructor(private http: HttpClient, private toastCtrl: ToastController) {
+  constructor() {
     this.onMsg$.subscribe((msg) => console.log(msg));
   }
 

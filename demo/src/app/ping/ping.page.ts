@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
+
+import { pb } from 'src/pb';
 import { AppService } from '../api/app.service';
 import { Message } from './message';
-import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-ping',
@@ -13,16 +14,18 @@ export class PingPage implements OnInit, OnDestroy {
   msgs: Message[] = [];
   private msg$?: Subscription;
 
-  constructor(private app: AppService, private http: HttpClient) {}
+  constructor(private app: AppService) {}
 
-  ngOnInit(): void {
-    this.msg$ = this.app.onMsg$.subscribe((msg) => {
-      this.msgs.unshift({
-        type: 'ws',
-        data: msg.data,
-        dur: new Date().getTime() - (msg.number as number),
+  ngOnInit() {
+    this.msg$ = this.app.onMsg$
+      .pipe(filter((m) => m.type == pb.Type.ping))
+      .subscribe((msg) => {
+        this.msgs.unshift({
+          type: 'ws',
+          data: msg.data,
+          dur: new Date().getTime() - (msg.number as number),
+        });
       });
-    });
   }
 
   ngOnDestroy(): void {
@@ -32,14 +35,8 @@ export class PingPage implements OnInit, OnDestroy {
   }
 
   ping() {
-    // const start = new Date().getTime();
-    this.http.get<Message>('/app/ping').subscribe((msg) => {
-      msg.dur = new Date().getTime() - start;
-      msg.type = 'http';
-      this.msgs.unshift(msg);
-    });
-    const start = new Date().getTime();
-    this.app.send({ number: start });
+    const number = new Date().getTime();
+    this.app.send({ type: pb.Type.ping, number });
   }
 
   color(dur: number) {

@@ -27,20 +27,18 @@ dev-demo-go:
 	go run cmd/demo/main.go -debug -port=9527
 
 build-demo:
-	cd cmd/demo && node_modules/@ionic/cli/bin/ionic build --prod
+	cd demo && node_modules/@ionic/cli/bin/ionic build --prod
 	echo '' > cmd/demo/www/.gitkeep
 
 build-demo-go: build-demo
 	go build -o dist/gca-demo cmd/demo/main.go
 
-proto:
-	# protoc --go_out=. pb/*.proto
+proto: protojs
 	protoc --go_out=. cmd/demo/pb/*.proto
-	protoc-go-inject-tag -input=cmd/demo/pb/*.pb.go
 
 protojs:
-	cd cmd/demo && node_modules/.bin/pbjs -t static-module -w commonjs -o src/pb.js pb/*.proto
-	cd cmd/demo && node_modules/.bin/pbts -o src/pb.d.ts src/pb.js
+	cd demo && node_modules/.bin/pbjs -t static-module -w commonjs -o src/pb.js ../cmd/demo/pb/*.proto
+	cd demo && node_modules/.bin/pbts -o src/pb.d.ts src/pb.js
 
 windows:
 	GOOS=windows GOARCH=amd64 go build -ldflags "-H windowsgui" -o dist/demo.exe cmd/demo/main.go

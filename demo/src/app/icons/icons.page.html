@@ -5,7 +5,7 @@
     </ion-buttons>
     <ion-title>图标</ion-title>
     <ion-buttons slot="end">
-      <ion-searchbar placeholder="搜索" [(ngModel)]="query.text" [debounce]="500"
+      <ion-searchbar placeholder="搜索" [(ngModel)]="icons.text" [debounce]="500"
         (ngModelChange)="find()"></ion-searchbar>
     </ion-buttons>
   </ion-toolbar>
@@ -19,7 +19,7 @@
   </ion-header>
 
   <ion-grid>
-    <ion-col size="1" *ngFor="let icon of icons?.data">
+    <ion-col size="1" *ngFor="let icon of icons?.icons">
       <ion-button size="large" color="light" [title]="icon" (click)="copy(icon)">
         <ion-icon [name]="icon"></ion-icon>
       </ion-button>
@@ -31,11 +31,11 @@
 <ion-footer>
   <ion-toolbar>
     <ion-buttons slot="end">
-      <ion-badge slot="start">{{ query.limit }} / {{ icons.count }}</ion-badge>
-      <ion-button size="large" (click)="prev()" [disabled]="!query.limit || query.limit===0">
+      <ion-badge slot="start">{{ icons.offset }} / {{ icons.count }}</ion-badge>
+      <ion-button size="large" (click)="prev()" [disabled]="!icons.offset|| icons.offset===0">
         <ion-icon name="caret-back"></ion-icon>
       </ion-button>
-      <ion-button size="large" (click)="next()" [disabled]="!icons.data || icons.data.length<100">
+      <ion-button size="large" (click)="next()" [disabled]="!icons.icons|| icons.icons.length<100">
         <ion-icon name="caret-forward"></ion-icon>
       </ion-button>
     </ion-buttons>

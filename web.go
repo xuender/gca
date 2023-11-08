@@ -3,50 +3,16 @@ package gca
 import (
 	"fmt"
 	"io/fs"
-	"log/slog"
 	"math/rand"
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
-	"time"
+	"strings"
 
-	"github.com/gin-gonic/gin"
+	"github.com/xuender/kit/set"
 )
-
-// StaticHandler fs.
-func StaticHandler(urlPrefix string, fsys fs.FS, dir string) gin.HandlerFunc {
-	if dir != "" {
-		fsys, _ = fs.Sub(fsys, dir)
-	}
-
-	handler := http.FileServer(http.FS(fsys))
-	if urlPrefix != "" {
-		handler = http.StripPrefix(urlPrefix, handler)
-	}
-
-	return func(c *gin.Context) {
-		path := c.Request.URL.Path[1:]
-		if _, err := fsys.Open(path); path == "" || err == nil {
-			handler.ServeHTTP(c.Writer, c.Request)
-			c.Abort()
-		}
-	}
-}
-
-func Recovery() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		defer func() {
-			if err := recover(); err != nil {
-				slog.Error("异常:", err)
-				ctx.JSON(http.StatusInternalServerError, err)
-				ctx.Abort()
-			}
-		}()
-
-		ctx.Next()
-	}
-}
 
 // RandomPort 随机可用的端口号.
 func RandomPort() int {
@@ -59,7 +25,6 @@ func RandomPort() int {
 		max = 9000
 	)
 
-	rand.Seed(time.Now().UnixMicro())
 	// nolint: gosec
 	port := rand.Intn(max) + min
 
@@ -76,4 +41,40 @@ func RandomPort() int {
 	os.Setenv("GCA_PORT", strconv.Itoa(port))
 
 	return port
+}
+
+// StaticHandler fs.
+func StaticHandler(fsys fs.FS, dirs ...string) http.HandlerFunc {
+	if len(dirs) > 0 {
+		fsys, _ = fs.Sub(fsys, filepath.Join(dirs...))
+	}
+
+	var (
+		handler = http.FileServer(http.FS(fsys))
+		paths   = set.NewSet[string]()
+	)
+
+	return func(writer http.ResponseWriter, request *http.Request) {
+		if url := strings.Trim(request.URL.Path, "/"); fsHas(url, paths, fsys) {
+			// if url != "" {
+			// ctx.Header(CacheControl, MaxAge1y)
+			// }
+			handler.ServeHTTP(writer, request)
+		}
+	}
+}
+
+func fsHas(path string, paths set.Set[string], fsys fs.FS) bool {
+	if path == "" || paths.Has(path) {
+		return true
+	}
+
+	if file, err := fsys.Open(path); err == nil {
+		file.Close()
+		paths.Add(path)
+
+		return true
+	}
+
+	return false
 }
