@@ -51,7 +51,7 @@ func StaticHandler(fsys fs.FS, dirs ...string) http.HandlerFunc {
 
 	var (
 		handler = http.FileServer(http.FS(fsys))
-		paths   = set.NewSet[string]()
+		paths   = set.NewSync[string]()
 	)
 
 	return func(writer http.ResponseWriter, request *http.Request) {
@@ -64,7 +64,7 @@ func StaticHandler(fsys fs.FS, dirs ...string) http.HandlerFunc {
 	}
 }
 
-func fsHas(path string, paths set.Set[string], fsys fs.FS) bool {
+func fsHas(path string, paths *set.Sync[string], fsys fs.FS) bool {
 	if path == "" || paths.Has(path) {
 		return true
 	}
